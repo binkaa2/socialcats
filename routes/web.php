@@ -22,8 +22,4 @@ Route::get('/', function () {
 Route::group(['prefix'=>'admin'],function () {
     Route::get('','Backend\\DashboardController@index');
     Route::resource('user', 'Backend\\UserController');
-    // Route::resource('content', 'ContentController');
-    // Route::resource('content-category', 'ContentCategoryController');
-    // Route::resource('sub-content-category', 'SubContentCategoryController');
-    // Route::resource('user', 'UserController');
 });

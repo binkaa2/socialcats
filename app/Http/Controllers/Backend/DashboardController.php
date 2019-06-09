@@ -17,6 +17,6 @@ class DashboardController extends Controller
      */
     public function index(Request $request){
         $user = User::all()->count();
-        return view('cms.index',['user'=>$user]);
+        return view('cms.indexbasic',['user'=>$user]);
     }
 }
