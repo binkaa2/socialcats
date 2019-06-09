@@ -15,6 +15,15 @@ Route::get('/', function () {
     return view('welcome');
 });
 
-Route::get('/admin',function(){
-    return view('cms.index');
+// Route::get('/admin',function(){
+//     return view('cms.index');
+// });
+
+Route::group(['prefix'=>'admin'],function () {
+    Route::get('','Backend\\DashboardController@index');
+    Route::resource('user', 'Backend\\UserController');
+    // Route::resource('content', 'ContentController');
+    // Route::resource('content-category', 'ContentCategoryController');
+    // Route::resource('sub-content-category', 'SubContentCategoryController');
+    // Route::resource('user', 'UserController');
 });

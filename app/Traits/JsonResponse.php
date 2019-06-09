@@ -1,5 +1,7 @@
 <?php
-
+/**
+ * Credited to PT Hung
+ */
 namespace App\Traits;
 trait JsonResponse {
 

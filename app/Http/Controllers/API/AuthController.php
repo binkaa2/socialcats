@@ -21,6 +21,7 @@ use Mockery\Exception;
 // use App\Jobs\SendNotifyCreateDevice;
 // use App\Traits\BaseModel;
 // use App\Traits\Notify;
+use App\Traits\ResponseCode;
 use Carbon\Carbon;
 class AuthController extends Controller
 {
@@ -52,9 +53,7 @@ class AuthController extends Controller
             'phone_number' => 'required'
         ]);
         if ($validator->fails()) {
-            return response()->json([
-                'error'=>$validator->errors()
-            ],400);
+            return $this->sendResponse(false,$validator->errors()->first(),null,ResponseCode::EXPECT_PARAM);
         }
 
         $input = $request->all();
@@ -63,22 +62,28 @@ class AuthController extends Controller
 
         try {
             $user = User::create($input);
-            forEach($request->tums as $tum){
-                $tell_us_more = TellUsMore::create([
-                    "user_id" => $user->id,
-                    "tum_code" => $tum['tum_code'],
-                    "tum_name" => $tum['tum_name']
-                ]);
+            if($request->tums){
+                forEach($request->tums as $tum){
+                    $tell_us_more = TellUsMore::create([
+                        "user_id" => $user->id,
+                        "tum_code" => $tum['tum_code'],
+                        "tum_name" => $tum['tum_name']
+                    ]);
+                }
             }
+            $user = Auth::user(); 
+            $tokenResult = $user->createToken('gapmash-token');
+            $token = $tokenResult->token;
+            $token->save();
+            return $this->sendResponse(true,'Sign up successfully',[
+                'access_token' => $tokenResult->accessToken,
+                //'refresh_token' => $tokenResult->refreshToken,
+                'token_type' => 'Bearer',
+                'expires_at' => Carbon::parse($tokenResult->token->expires_at)->toDateTimeString()
+            ]);
         } catch (Exception $exception) {
-            return response()->json([
-                'error'=>$exception->getMessage()
-            ],200);
+            return $this->sendResponse(false, 'Create user fails', null, ResponseCode::SERVER_ERROR);
         }
-        return response()->json([
-            'message' => 'Successfully creating new users'
-        ],200);
-
     }
     
     /**
@@ -97,21 +102,22 @@ class AuthController extends Controller
         ]);
         $credentials = request(['email','password']);
         if(!Auth::attempt($credentials)){
-            return response()->json([
-                'error' => 'email or password incorrect!'
-            ],401);
+            return $this->sendResponse(false, 'Login information are incorrect', null, ResponseCode::BAD_REQUEST);
         }
-        $user = Auth::user(); 
-        $tokenResult = $user->createToken('gapmash-token');
-        $token = $tokenResult->token;
-        $token->save();
-        return response()->json([
-            'access_token' => $tokenResult->accessToken,
-            'token_type' => 'Bearer',
-            'expires_at' => Carbon::parse(
-                $tokenResult->token->expires_at
-            )->toDateTimeString()
-        ]);
+        try{
+            $user = Auth::user(); 
+            $tokenResult = $user->createToken('gapmash-token');
+            $token = $tokenResult->token;
+            $token->save();
+            return $this->sendResponse(true,'Login Success',[
+                'access_token' => $tokenResult->accessToken,
+                //'refresh_token' => $tokenResult->refreshToken,
+                'token_type' => 'Bearer',
+                'expires_at' => Carbon::parse($tokenResult->token->expires_at)->toDateTimeString()
+            ]);
+        }catch(Exception $e){
+            return $this->sendResponse(false, 'Retrieve access token fail', null, ResponseCode::GRANT_TOKEN_FAIL);
+        }
     }
 
      /**
@@ -123,9 +129,7 @@ class AuthController extends Controller
     public function user(Request $request)
     {
         if(!Auth::user())
-            return response()->json([
-                "error" => "user not found!"
-            ],404);
+            return $this->sendResponse(false, 'Get user information fail', null, ResponseCode::UNAUTHORIZED);
         $tum = Auth::user()::join('tell_us_more','users.id','=','tell_us_more.user_id')->select('tell_us_more.tum_code','tell_us_more.tum_name')->get();
         $tums['tell_us_more'] = $tum;
         $user = array_merge(json_decode(Auth::user(),true),$tums);
@@ -140,8 +144,6 @@ class AuthController extends Controller
     public function logout(Request $request)
     {
         $request->user()->token()->revoke();
-        return response()->json([
-            'message' => 'Successfully logged out'
-        ],200);
+        return $this->sendResponse(true, 'Successfully logged out');
     }
 }

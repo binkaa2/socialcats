@@ -4,8 +4,44 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "8ed36e0bdbe1a20189436ed8c6e93975",
+    "content-hash": "d0038685b070228041a7ebba91c79d36",
     "packages": [
+        {
+            "name": "cedextech/trait-generator",
+            "version": "1.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/cedextech/trait-generator.git",
+                "reference": "6b864c05583d6007e2b768a35d053a3b3772be05"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/cedextech/trait-generator/zipball/6b864c05583d6007e2b768a35d053a3b3772be05",
+                "reference": "6b864c05583d6007e2b768a35d053a3b3772be05",
+                "shasum": ""
+            },
+            "require": {
+                "php": "^7.0"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-0": {
+                    "Cedextech\\TraitGenerator": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Kiran K",
+                    "email": "kiran@cedextech.com"
+                }
+            ],
+            "description": "A Laravel Generator For Creating New Traits",
+            "time": "2017-10-15T20:57:24+00:00"
+        },
         {
             "name": "defuse/php-encryption",
             "version": "v2.2.1",
